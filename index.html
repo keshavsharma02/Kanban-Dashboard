@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevKanban v2.1.0 - Terminal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Terminal Boot Sequence -->
+    <div id="bootSequence" class="boot-sequence">
+        <div class="terminal-window">
+            <div class="terminal-header">
+                <div class="terminal-controls">
+                    <span class="control close"></span>
+                    <span class="control minimize"></span>
+                    <span class="control maximize"></span>
+                </div>
+                <div class="terminal-title">DevKanban Terminal v2.1.0</div>
+            </div>
+            <div class="terminal-body">
+                <div class="boot-output">
+                    <div class="boot-line" data-delay="100">$ ./devkanban --init</div>
+                    <div class="boot-line" data-delay="300">Initializing Developer Kanban Board...</div>
+                    <div class="boot-line" data-delay="500">Loading core modules...</div>
+                    <div class="boot-line" data-delay="700">✓ TaskManager.js loaded</div>
+                    <div class="boot-line" data-delay="900">✓ DragDrop.js loaded</div>
+                    <div class="boot-line" data-delay="1100">✓ UI.js loaded</div>
+                    <div class="boot-line" data-delay="1300">✓ Storage.js loaded</div>
+                    <div class="boot-line" data-delay="1500">Connecting to local storage...</div>
+                    <div class="boot-line" data-delay="1700">✓ Connection established</div>
+                    <div class="boot-line" data-delay="1900">
+                        <span class="neon-text">DevKanban ready!</span>
+                    </div>
+                    <div class="boot-line" data-delay="2100">Loading workspace...</div>
+                </div>
+                <div class="ascii-art">
+<pre>
+██████╗ ███████╗██╗   ██╗██╗  ██╗ █████╗ ███╗   ██╗██████╗  █████╗ ███╗   ██╗
+██╔══██╗██╔════╝██║   ██║██║ ██╔╝██╔══██╗████╗  ██║██╔══██╗██╔══██╗████╗  ██║
+██║  ██║█████╗  ██║   ██║█████╔╝ ███████║██╔██╗ ██║██████╔╝███████║██╔██╗ ██║
+██║  ██║██╔══╝  ╚██╗ ██╔╝██╔═██╗ ██╔══██║██║╚██╗██║██╔══██╗██╔══██║██║╚██╗██║
+██████╔╝███████╗ ╚████╔╝ ██║  ██╗██║  ██║██║ ╚████║██████╔╝██║  ██║██║ ╚████║
+╚═════╝ ╚══════╝  ╚═══╝  ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝
+</pre>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                    <div class="progress-text">Loading... <span id="progressPercent">0</span>%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="main-app hidden">
+        <!-- Header with Terminal Style -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="bracket">[</span>
+                    <span class="logo-text">DevKanban</span>
+                    <span class="bracket">]</span>
+                    <span class="version">v2.1.0</span>
+                </div>
+                <div class="status-bar">
+                    <span class="status-item">
+                        <span class="status-label">FPS:</span>
+                        <span id="fpsCounter" class="status-value">60</span>
+                    </span>
+                    <span class="status-item">
+                        <span class="status-label">Tasks:</span>
+                        <span id="totalTasks" class="status-value">0</span>
+                    </span>
+                    <span class="cursor-blink">█</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- Command Bar -->
+            <section class="command-section">
+                <div class="terminal-card">
+                    <div class="terminal-card-header">
+                        <span class="prompt">~/devkanban $</span>
+                        <span class="command-text">create-task</span>
+                    </div>
+                    <div class="terminal-card-body">
+                        <form id="taskForm" class="task-form">
+                            <div class="form-group">
+                                <label for="taskTitle" class="form-label">
+                                    <span class="param">--title</span>
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="text" id="taskTitle" class="terminal-input" placeholder="implement_feature()" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="taskDescription" class="form-label">
+                                    <span class="param">--description</span>
+                                </label>
+                                <textarea id="taskDescription" class="terminal-input" rows="3" placeholder="// TODO: Add implementation details"></textarea>
+                            </div>
+                            <button type="submit" class="btn-terminal btn-primary">
+                                <span class="btn-icon">></span>
+                                <span class="btn-text">Execute</span>
+                                <span class="btn-shortcut">[ENTER]</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Kanban Board -->
+            <section class="kanban-workspace">
+                <div class="workspace-header">
+                    <div class="breadcrumb">
+                        <span class="path-segment">~/workspace</span>
+                        <span class="path-separator">/</span>
+                        <span class="path-segment active">kanban</span>
+                    </div>
+                </div>
+                
+                <div class="board-container">
+                    <!-- To Do Column -->
+                    <div class="column column-todo" data-column="todo">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <span class="column-icon">📋</span>
+                                <span class="column-name">TODO</span>
+                                <span class="column-syntax">.queue</span>
+                            </div>
+                            <div class="column-badge">
+                                <span id="todoCount" class="count">0</span>
+                            </div>
+                        </div>
+                        <div class="column-content" id="todoColumn" data-column="todo">
+                            <!-- Dynamic tasks -->
+                        </div>
+                        <div class="column-footer">
+                            <div class="column-stats">
+                                <span class="stats-text">// end of queue</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- In Progress Column -->
+                    <div class="column column-inprogress" data-column="inprogress">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <span class="column-icon">⚡</span>
+                                <span class="column-name">IN_PROGRESS</span>
+                                <span class="column-syntax">.active</span>
+                            </div>
+                            <div class="column-badge">
+                                <span id="inprogressCount" class="count">0</span>
+                            </div>
+                        </div>
+                        <div class="column-content" id="inprogressColumn" data-column="inprogress">
+                            <!-- Dynamic tasks -->
+                        </div>
+                        <div class="column-footer">
+                            <div class="column-stats">
+                                <span class="stats-text">// processing...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Done Column -->
+                    <div class="column column-done" data-column="done">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <span class="column-icon">✅</span>
+                                <span class="column-name">DONE</span>
+                                <span class="column-syntax">.completed</span>
+                            </div>
+                            <div class="column-badge">
+                                <span id="doneCount" class="count">0</span>
+                            </div>
+                        </div>
+                        <div class="column-content" id="doneColumn" data-column="done">
+                            <!-- Dynamic tasks -->
+                        </div>
+                        <div class="column-footer">
+                            <div class="column-stats">
+                                <span class="stats-text">// success!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Performance Monitor (Dev Mode) -->
+        <div class="performance-monitor">
+            <div class="perf-item">
+                <span class="perf-label">Render:</span>
+                <span id="renderTime" class="perf-value">0ms</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Template -->
+    <template id="taskTemplate">
+        <div class="task-card" draggable="true">
+            <div class="task-header">
+                <div class="task-status-indicator"></div>
+                <div class="task-id"></div>
+                <button class="task-delete" type="button" aria-label="Delete task">
+                    <span class="delete-icon">×</span>
+                </button>
+            </div>
+            <div class="task-body">
+                <h3 class="task-title"></h3>
+                <div class="task-description">
+                    <pre class="code-block"><code></code></pre>
+                </div>
+                <div class="task-tags"></div>
+            </div>
+            <div class="task-footer">
+                <div class="task-meta">
+                    <span class="task-date"></span>
+                    <span class="task-priority"></span>
+                </div>
+                <div class="task-actions">
+                    <button class="action-btn" title="Edit">
+                        <span>✏️</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script src="app.js"></script>
+</body>
+</html>
